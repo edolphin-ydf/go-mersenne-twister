@@ -2,8 +2,8 @@ package mt_test
 
 import (
 	"fmt"
+	"go-mersenne-twister"
 	"testing"
-	"github.com/nasa9084/go-mersenne-twister"
 )
 
 var expectedInt = []uint32{
@@ -416,7 +416,7 @@ func TestMt(t *testing.T) {
 	key := []uint32{0x123, 0x234, 0x345, 0x456}
 	mt.InitByArray(key)
 	for _, want := range expectedInt {
-		have := mt.GenrandInt32()
+		have := mt.UInt32()
 		if have != want {
 			t.Errorf("wrong output: %d != %d", have, want)
 		}
@@ -426,5 +426,32 @@ func TestMt(t *testing.T) {
 		if fmt.Sprintf("%.8f", have) != fmt.Sprintf("%.8f", want) {
 			t.Errorf("wrong output: %.8f != %.8f", have, want)
 		}
+	}
+}
+
+func TestSerialize(t *testing.T) {
+	r := mt.New()
+	r.Seed(10)
+	data := r.Serialize()
+	var v1s []uint32
+	for i := 0; i < 1000; i++ {
+		v := r.UInt32()
+		v1s = append(v1s, v)
+	}
+
+	r2 := mt.New()
+	r2.Deserialize(data)
+	var v2s []uint32
+	for i := 0; i < 1000; i++ {
+		v := r2.UInt32()
+		v2s = append(v2s, v)
+	}
+
+	for i := 0; i < 1000; i++ {
+		if v1s[i] != v2s[i] {
+			t.Fatal("")
+		}
+		print(v1s[i])
+		print(", ")
 	}
 }
